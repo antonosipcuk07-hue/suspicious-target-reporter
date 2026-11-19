@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Повідомити про підозрілий сайт чи програму</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--text:#14181f;--muted:#5b6575;--line:#d9dfea;--acc:#2f6bff;--accT:#fff;--ok:#1a8f4c;--warn:#b4531a;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1219;--card:#171d27;--text:#e8ecf3;--muted:#98a3b6;--line:#2a3342;--acc:#5b8cff;--accT:#0b1020;--ok:#43c47a;--warn:#e89a5c;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1219;--card:#171d27;--text:#e8ecf3;--muted:#98a3b6;--line:#2a3342;--acc:#5b8cff;--accT:#0b1020;--ok:#43c47a;--warn:#e89a5c;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:680px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:1.55rem;margin:0 0 6px}
+.lead{color:var(--muted);margin:0 0 20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px}
+label{display:block;font-weight:600;margin:14px 0 6px}
+label:first-child{margin-top:0}
+.hint{font-weight:400;color:var(--muted);font-size:.85rem}
+input,select,textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);font:inherit}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--acc);outline-offset:1px}
+textarea{min-height:110px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.row{grid-template-columns:1fr}}
+.check{display:flex;gap:10px;align-items:flex-start;font-weight:400;margin-top:14px}
+.check input{width:auto;margin-top:5px}
+button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:12px 18px;cursor:pointer;background:var(--acc);color:var(--accT)}
+button.sec{background:transparent;color:var(--text);border:1px solid var(--line)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.note{font-size:.85rem;color:var(--muted)}
+.warn{color:var(--warn)}
+#result{display:none}
+.frow{display:flex;align-items:center;gap:10px;margin-top:8px;padding:8px;border:1px solid var(--line);border-radius:10px}.frow img{width:44px;height:44px;object-fit:cover;border-radius:6px}.frow span{flex:1;word-break:break-all;font-size:.9rem}.frow button{padding:6px 10px;font-size:.85rem}
+#out{white-space:pre-wrap;word-break:break-word;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;font:.9rem/1.5 ui-monospace,Menlo,Consolas,monospace;max-height:320px;overflow:auto}
+#msg{color:var(--ok);font-weight:600;min-height:1.4em;margin-top:8px}
+.err{color:var(--warn);font-size:.85rem;margin-top:4px;display:none}
+</style>
+</head>
+<body>
+<main>
+  <h1>Підозрілий сайт чи програма?</h1>
+  <p class="lead">Розкажіть, що саме викликало підозру — я перегляну інформацію та проаналізую її. Чим більше деталей, тим краще.</p>
+
+  <form id="f" class="card" novalidate>
+    <label for="type">Що перевірити?</label>
+    <select id="type">
+      <option>Сайт</option>
+      <option>Програма для ПК</option>
+      <option>Мобільний застосунок</option>
+      <option>Файл / посилання з повідомлення</option>
+      <option>Інше</option>
+    </select>
+
+    <label for="target">Адреса або назва <span class="hint">(обов’язково)</span></label>
+    <input id="target" placeholder="напр. example-shop.xyz або назва програми" autocomplete="off">
+    <div class="err" id="e1">Вкажіть адресу або назву.</div>
+
+    <label for="where">Де ви це знайшли?</label>
+    <select id="where">
+      <option>Повідомлення в месенджері (Telegram, Viber…)</option>
+      <option>SMS</option>
+      <option>Електронна пошта</option>
+      <option>Соцмережі</option>
+      <option>Реклама / пошук</option>
+      <option>Інше</option>
+    </select>
+
+    <label for="what">Що здалося підозрілим? <span class="hint">(обов’язково)</span></label>
+    <textarea id="what" placeholder="Що просили зробити, що пропонували, які попередження з’являлися…"></textarea>
+    <div class="err" id="e2">Опишіть, що саме викликало підозру.</div>
+
+    <div class="row">
+      <div>
+        <label for="did">Ви вже щось робили?</label>
+        <select id="did">
+          <option>Нічого, лише побачив(ла)</option>
+          <option>Відкрив(ла) посилання</option>
+          <option>Ввів(ла) логін/пароль</option>
+          <option>Ввів(ла) дані картки</option>
+          <option>Завантажив(ла) і запустив(ла) файл</option>
+          <option>Переказав(ла) гроші</option>
+        </select>
+      </div>
+      <div>
+        <label for="when">Коли це було?</label>
+        <input id="when" placeholder="напр. сьогодні, вчора ввечері">
+      </div>
+    </div>
+
+    <label for="extra">Додатково <span class="hint">(посилання на скриншоти, версія ОС, тощо)</span></label>
+    <textarea id="extra" style="min-height:70px"></textarea>
+
+    <label for="files">Скриншоти або файли <span class="hint">(до 5 файлів, до 10 МБ; зображення, PDF, TXT)</span></label>
+    <input id="files" type="file" multiple accept="image/*,.pdf,.txt">
+    <div class="err" id="ferr"></div>
+    <div id="fl"></div>
+    <p class="note warn">Не надсилайте виконувані файли (.exe, .apk тощо) — лише скриншоти й описи.</p>
+
+    <label for="contact">Як з вами зв’язатися? <span class="hint">(необов’язково)</span></label>
+    <input id="contact" placeholder="Telegram @нік або e-mail" autocomplete="off">
+
+    <label class="check"><input type="checkbox" id="ok"> <span>Розумію, що це лише аналітична допомога, а не офіційний висновок. Не надсилайте паролі та повні номери карток.</span></label>
+    <div class="err" id="e3">Потрібна ваша згода.</div>
+
+    <div class="actions"><button type="submit">Підготувати звернення</button></div>
+  </form>
+
+  <section id="result" class="card" aria-live="polite">
+    <strong>Ваше звернення готове</strong>
+    <p class="note">Перегляньте текст і надішліть його одним зі способів нижче.</p>
+    <div id="out"></div>
+    <p class="note" id="attachNote"></p>
+    <div class="actions" id="send">
+      <button type="button" id="copy">Скопіювати текст</button>
+      <button type="button" class="sec" id="tg" hidden>Надіслати в Telegram</button>
+      <button type="button" class="sec" id="share" hidden>Поділитися з файлами</button>
+      <button type="button" class="sec" id="gmail" hidden>Відкрити в Gmail</button>
+      <button type="button" class="sec" id="mail" hidden>Поштовий застосунок</button>
+    </div>
+    <div id="msg"></div>
+  </section>
+
+  <p class="note">Не вводьте на підозрілих сайтах жодних даних, а підозрілі файли не запускайте. Якщо ви вже втратили гроші — зверніться до банку та кіберполіції.</p>
+</main>
+<script>
+// Контакти аналітика: вкажіть свої, і з’являться кнопки надсилання
+var TG_USERNAME = "";   // без @, напр. "my_nick"
+var EMAIL = "blacknode764@gmail.com";
+
+var $ = function(id){ return document.getElementById(id); };
+var report = "";
+
+function show(id, on){ $(id).style.display = on ? "block" : "none"; }
+
+if (TG_USERNAME) $("tg").hidden = false;
+if (EMAIL) { $("mail").hidden = false; $("gmail").hidden = false; }
+
+$("f").addEventListener("submit", function(ev){
+  ev.preventDefault();
+  var t = $("target").value.trim(), w = $("what").value.trim(), ok = $("ok").checked;
+  show("e1", !t); show("e2", !w); show("e3", !ok);
+  if (!t || !w || !ok) return;
+  var lines = [
+    "Звернення до аналітика",
+    "Тип: " + $("type").value,
+    "Адреса/назва: " + t,
+    "Де знайшов(ла): " + $("where").value,
+    "Що викликало підозру: " + w,
+    "Мої дії: " + $("did").value,
+    "Коли: " + ($("when").value.trim() || "не вказано"),
+    "Додатково: " + ($("extra").value.trim() || "—"),
+    "Контакт: " + ($("contact").value.trim() || "не вказано"),
+    "Файли (прикріпіть вручну): " + (files.length ? files.map(function(f){ return f.name; }).join(", ") : "немає")
+  ];
+  report = lines.join("\n");
+  $("out").textContent = report;
+  $("msg").textContent = "";
+  show("result", true); updateAttach();
+  $("result").scrollIntoView({behavior:"smooth", block:"start"});
+});
+
+var files = [];
+var MAX_FILES = 5, MAX_MB = 10;
+function fmt(n){ return n > 1048576 ? (n/1048576).toFixed(1) + " МБ" : Math.max(1, Math.round(n/1024)) + " КБ"; }
+function renderFiles(){
+  var box = $("fl"); box.textContent = "";
+  files.forEach(function(f, i){
+    var row = document.createElement("div"); row.className = "frow";
+    if (f.type.indexOf("image/") === 0) { var im = document.createElement("img"); im.src = URL.createObjectURL(f); im.alt = ""; row.appendChild(im); }
+    var nm = document.createElement("span"); nm.textContent = f.name + " (" + fmt(f.size) + ")"; row.appendChild(nm);
+    var rm = document.createElement("button"); rm.type = "button"; rm.className = "sec"; rm.textContent = "Видалити";
+    rm.onclick = function(){ files.splice(i, 1); renderFiles(); updateAttach(); };
+    row.appendChild(rm); box.appendChild(row);
+  });
+}
+$("files").addEventListener("change", function(){
+  var err = "";
+  Array.prototype.forEach.call(this.files, function(f){
+    if (files.length >= MAX_FILES) { err = "Максимум " + MAX_FILES + " файлів."; return; }
+    if (f.size > MAX_MB * 1048576) { err = "Файл «" + f.name + "» більший за " + MAX_MB + " МБ."; return; }
+    files.push(f);
+  });
+  this.value = "";
+  $("ferr").textContent = err; $("ferr").style.display = err ? "block" : "none";
+  renderFiles(); updateAttach();
+});
+function canShareFiles(){ try { return !!(files.length && navigator.canShare && navigator.canShare({files: files})); } catch(e){ return false; } }
+function updateAttach(){
+  var n = $("attachNote");
+  n.textContent = files.length ? "Файли не додаються до листа автоматично: прикріпіть їх вручну (скріпка) до листа чи повідомлення." + (canShareFiles() ? " На телефоні зручніше натиснути «Поділитися з файлами»." : "") : "";
+  $("share").hidden = !canShareFiles();
+}
+$("share").addEventListener("click", function(){
+  navigator.share({files: files, text: report, title: "Підозрілий сайт/програма"}).catch(function(){});
+});
+
+$("copy").addEventListener("click", function(){
+  function done(){ $("msg").textContent = "Скопійовано. Тепер вставте текст у повідомлення."; }
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(report).then(done, fallback);
+    } else fallback();
+  } catch(e){ fallback(); }
+  function fallback(){
+    var r = document.createRange(); r.selectNodeContents($("out"));
+    var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    $("msg").textContent = "Текст виділено — натисніть Ctrl+C (або «Копіювати»).";
+  }
+});
+
+$("tg").addEventListener("click", function(){
+  window.open("https://t.me/" + encodeURIComponent(TG_USERNAME) + "?text=" + encodeURIComponent(report), "_blank");
+});
+$("gmail").addEventListener("click", function(){
+  window.open("https://mail.google.com/mail/?view=cm&fs=1&to=" + encodeURIComponent(EMAIL) + "&su=" + encodeURIComponent("Підозрілий сайт/програма") + "&body=" + encodeURIComponent(report), "_blank");
+});
+$("mail").addEventListener("click", function(){
+  location.href = "mailto:" + EMAIL + "?subject=" + encodeURIComponent("Підозрілий сайт/програма") + "&body=" + encodeURIComponent(report);
+});
+</script>
+</body>
+</html>
